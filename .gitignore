@@ -1,2 +1,4 @@
 /target
 **/*.rs.bk
+test_img/*
+!test_img/.keep
