@@ -7,9 +7,11 @@ fn main() {
         image::DynamicImage::ImageRgb8(buf) => transcode::Image::Rgb(buf),
         _ => panic!("not rgb!")
     };
-    let img = transcode::difference(img.clone(), img).unwrap();
+    let gray = transcode::grayscale(img).unwrap();
+    let bin = transcode::threshold(gray.clone(), 100).unwrap();
+    let img = transcode::difference(gray, bin).unwrap();
     match img {
-        transcode::Image::Rgb(img) => img.save("hoge.png").unwrap(),
+        transcode::Image::Gray(img) => img.save("hoge.png").unwrap(),
         _ => panic!("not rgb!")
     }
 }
