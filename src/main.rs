@@ -2,6 +2,7 @@ extern crate transcode;
 extern crate image;
 
 use transcode::ast::TranscodeAST;
+use transcode::Kernel;
 
 fn from_dynamic_image(orig: image::DynamicImage) -> transcode::Image {
     match orig {
@@ -26,23 +27,17 @@ fn main() {
     let img = image::open("test_img/test_03.png").unwrap();
     let img = from_dynamic_image(img);
 
-    let gray = transcode::procedures::grayscale(img).unwrap();
-    save("./progress/gray.png", &gray);
-
-    let eroded = transcode::procedures::morphology_erode(gray.clone(), transcode::Kernel::disk(10)).unwrap();
-    save("./progress/eroded.png", &eroded);
-
-    let dilated = transcode::procedures::morphology_dilate(eroded, transcode::Kernel::disk(10)).unwrap();
-    save("./progress/dilated.png", &dilated);
-
-    //let flattened = transcode::procedures::difference(gray, dilated).unwrap();
     let context = vec![
-        TranscodeAST::Image { data: gray },
-        TranscodeAST::Image { data: dilated },
-        TranscodeAST::Difference { left_pc: 0, right_pc: 1, result: None }
+        TranscodeAST::Image { data: img },
+        TranscodeAST::Grayscale { target_pc: 0, result: None },
+        TranscodeAST::MorphologyErode { target_pc: 1, kernel: Kernel::disk(10), result: None },
+        TranscodeAST::MorphologyDilate { target_pc: 2, kernel: Kernel::disk(10), result: None },
+        TranscodeAST::Difference { left_pc: 1, right_pc: 3, result: None },
+        TranscodeAST::Threshold { target_pc: 4, thresh: 50, result: None }
     ];
     let mut evaluator = transcode::evaluator::Evaluator { context: context };
-    let flattened = evaluator.run();
-
-    save("./progress/flattened.png", &flattened);
+    evaluator.run();
+    for (index, ast) in evaluator.context.into_iter().enumerate() {
+        save(&format!("./progress/{:0width$}.png", index, width = 4), &ast.result_image());
+    }
 }
