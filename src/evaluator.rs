@@ -34,7 +34,36 @@ impl Evaluator {
                     };
                 }
             },
-            _ => ()
+            TranscodeAST::Grayscale { target_pc, result } => {
+                if result.is_none() {
+                    self.eval(target_pc);
+                    self.context[pc] = TranscodeAST::Grayscale {
+                        target_pc: target_pc,
+                        result: Some(procedures::grayscale(self.context[target_pc].result_image()).unwrap())
+                    };
+                }
+            },
+            TranscodeAST::MorphologyErode { target_pc, kernel, result } => {
+                if result.is_none() {
+                    self.eval(target_pc);
+                    self.context[pc] = TranscodeAST::MorphologyErode {
+                        target_pc: target_pc,
+                        kernel: kernel.clone(),
+                        result: Some(procedures::morphology_erode(self.context[target_pc].result_image(), kernel).unwrap())
+                    };
+                }
+            },
+            TranscodeAST::MorphologyDilate { target_pc, kernel, result } => {
+                if result.is_none() {
+                    self.eval(target_pc);
+                    self.context[pc] = TranscodeAST::MorphologyDilate {
+                        target_pc: target_pc,
+                        kernel: kernel.clone(),
+                        result: Some(procedures::morphology_dilate(self.context[target_pc].result_image(), kernel).unwrap())
+                    };
+                }
+            },
+            TranscodeAST::Image { .. } => ()
         }
     }
 }
