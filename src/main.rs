@@ -20,17 +20,23 @@ fn save(path: &str, img: &transcode::Image) {
     }
 }
 
-fn kernel(width: u32, height: u32) -> image::GrayImage {
-    image::GrayImage::from_raw(width, height, vec![0; (width * height) as usize]).unwrap()
-}
-
 fn main() {
     let img = image::open("test_img/test_03.png").unwrap();
 
     let img = from_dynamic_image(img);
+
     let gray = transcode::grayscale(img).unwrap();
     save("./progress/gray.png", &gray);
 
-    let eroded = transcode::morphology_erode(gray, transcode::MorphologyErodeOpts{kernel: kernel(15,15)}).unwrap();
+    let eroded = transcode::morphology_erode(
+        gray.clone(),
+        transcode::MorphologyErodeOpts{kernel: transcode::Kernel::disk(10)}
+    ).unwrap();
     save("./progress/eroded.png", &eroded);
+
+    let dilated = transcode::morphology_dilate(eroded, transcode::MorphologyDilateOpts{kernel: transcode::Kernel::disk(10)}).unwrap();
+    save("./progress/dilated.png", &dilated);
+
+    let flattened = transcode::difference(gray, dilated).unwrap();
+    save("./progress/flattened.png", &flattened);
 }
