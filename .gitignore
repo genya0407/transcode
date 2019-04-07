@@ -6,3 +6,5 @@ progress/*
 !progress/.keep
 results/*
 !results/.keep
+test_json/*
+!test_json/.keep

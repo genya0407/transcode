@@ -1,12 +1,16 @@
 extern crate image;
 extern crate imageproc;
 extern crate itertools;
+extern crate serde_json;
+extern crate simple_error;
+extern crate base64;
 
 use itertools::Itertools;
 
 pub mod procedures;
 pub mod ast;
 pub mod evaluator;
+pub mod parser;
 
 #[derive(Clone)]
 pub enum Image {
