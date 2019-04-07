@@ -4,6 +4,14 @@ version = "0.1.0"
 authors = ["Yusuke Sangenya <longinus.eva@gmail.com>"]
 edition = "2018"
 
+[[bin]]
+name = "cli"
+path = "src/main_cli.rs"
+
+[[bin]]
+name = "web"
+path = "src/main_web.rs"
+
 [dependencies]
 image = "*"
 imageproc = "*"
@@ -13,3 +21,6 @@ itertools = "*"
 serde_json = "1.0"
 simple-error = "0.1"
 base64 = "0.10"
+
+hyper = "0.12"
+futures = "*"

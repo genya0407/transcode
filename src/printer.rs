@@ -16,7 +16,7 @@ fn image_to_b64(img: Image) -> String {
     let dynamic_image = to_dynamic_image(img);
     let mut buffer = Vec::new();
     dynamic_image.write_to(&mut buffer, image::ImageOutputFormat::PNG).unwrap();
-    encode(&buffer)
+    format!("data:image/png;base64,{}", encode(&buffer))
 }
 
 pub fn print(context: Vec<TranscodeAST>) -> String {
