@@ -2,3 +2,7 @@
 **/*.rs.bk
 test_img/*
 !test_img/.keep
+progress/*
+!progress/.keep
+results/*
+!results/.keep

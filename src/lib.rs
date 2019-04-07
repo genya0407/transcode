@@ -1,6 +1,9 @@
 extern crate image;
 extern crate imageproc;
+extern crate itertools;
+
 use image::ImageBuffer;
+use itertools::Itertools;
 
 #[derive(Clone)]
 pub enum Image {
@@ -40,6 +43,37 @@ pub fn grayscale(img: Image) -> Result<Image, ImageTypeError> {
         Image::GrayAlpha(img) => Ok(Image::GrayAlpha(img)),
         Image::Rgb(img)       => Ok(Image::Gray(image::imageops::colorops::grayscale(&img))),
         Image::Rgba(img)      => Ok(Image::Gray(image::imageops::colorops::grayscale(&img)))
+    }
+}
+
+pub struct MorphologyErodeOpts {
+    pub kernel: image::GrayImage
+}
+
+pub fn morphology_erode(img: Image, opts: MorphologyErodeOpts) -> Result<Image, ImageTypeError> {
+    match img {
+        Image::Gray(original) => {
+            let kernel = opts.kernel;
+            let mut new_img = image::GrayImage::new(original.width(), original.height());
+            for (x, y, p) in new_img.enumerate_pixels_mut() {
+                let eroded_pixel = (0..(kernel.width()))
+                    .cartesian_product(0..(kernel.height()))
+                    .map(|(dx, dy)| {
+                        let x = x+dx;
+                        let y = y+dy;
+                        if x < original.width() && y < original.height() {
+                            let orig_pixel = original.get_pixel(x, y).data[0];
+                            let kernel_pixel = kernel.get_pixel(dx, dy).data[0];
+                            orig_pixel.saturating_sub(kernel_pixel)
+                        } else {
+                            255 // for ignoring this pixel
+                        }
+                    }).min().unwrap();
+                *p = image::Luma { data: [eroded_pixel] };
+            }
+            Ok(Image::Gray(new_img))
+        },
+        _                => Err(ImageTypeError::ColorTypeMismatched)
     }
 }
 
