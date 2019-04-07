@@ -25,18 +25,21 @@ fn main() {
 
     let img = from_dynamic_image(img);
 
-    let gray = transcode::grayscale(img).unwrap();
+    let gray = transcode::procedures::grayscale(img).unwrap();
     save("./progress/gray.png", &gray);
 
-    let eroded = transcode::morphology_erode(
+    let eroded = transcode::procedures::morphology_erode(
         gray.clone(),
-        transcode::MorphologyErodeOpts{kernel: transcode::Kernel::disk(10)}
+        transcode::procedures::MorphologyErodeOpts{kernel: transcode::procedures::Kernel::disk(10)}
     ).unwrap();
     save("./progress/eroded.png", &eroded);
 
-    let dilated = transcode::morphology_dilate(eroded, transcode::MorphologyDilateOpts{kernel: transcode::Kernel::disk(10)}).unwrap();
+    let dilated = transcode::procedures::morphology_dilate(
+        eroded,
+        transcode::procedures::MorphologyDilateOpts{kernel: transcode::procedures::Kernel::disk(10)}
+    ).unwrap();
     save("./progress/dilated.png", &dilated);
 
-    let flattened = transcode::difference(gray, dilated).unwrap();
+    let flattened = transcode::procedures::difference(gray, dilated).unwrap();
     save("./progress/flattened.png", &flattened);
 }
