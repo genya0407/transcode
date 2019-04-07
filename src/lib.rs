@@ -27,7 +27,7 @@ impl std::fmt::Display for Image {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Kernel {
     width: u32,
     height: u32,

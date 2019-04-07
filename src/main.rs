@@ -24,7 +24,6 @@ fn save(path: &str, img: &transcode::Image) {
 
 fn main() {
     let img = image::open("test_img/test_03.png").unwrap();
-
     let img = from_dynamic_image(img);
 
     let gray = transcode::procedures::grayscale(img).unwrap();
@@ -37,12 +36,13 @@ fn main() {
     save("./progress/dilated.png", &dilated);
 
     //let flattened = transcode::procedures::difference(gray, dilated).unwrap();
-    let ast = TranscodeAST::Difference {
-        left: Box::new(TranscodeAST::Image{ data: gray }),
-        right: Box::new(TranscodeAST::Image { data: dilated }),
-        result: None
-    };
-    let flattened = transcode::evaluator::eval_ast(Box::new(ast)).result_image();
+    let context = vec![
+        TranscodeAST::Image { data: gray },
+        TranscodeAST::Image { data: dilated },
+        TranscodeAST::Difference { left_pc: 0, right_pc: 1, result: None }
+    ];
+    let mut evaluator = transcode::evaluator::Evaluator { context: context };
+    let flattened = evaluator.run();
 
     save("./progress/flattened.png", &flattened);
 }

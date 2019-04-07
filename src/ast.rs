@@ -1,11 +1,12 @@
 use super::{Image, Kernel};
 
+#[derive(Clone)]
 pub enum TranscodeAST {
-    Difference { left: Box<TranscodeAST>, right: Box<TranscodeAST>, result: Option<Image> },
-    Threshold { target: Box<TranscodeAST>, thresh: u8, result: Option<Image> },
-    Grayscale { target: Box<TranscodeAST>, result: Option<Image> },
-    MorphologyErode { target: Box<TranscodeAST>, kernel: Kernel, result: Option<Image> },
-    MorphologyDilate { target: Box<TranscodeAST>, kernel: Kernel, result: Option<Image> },
+    Difference { left_pc: usize, right_pc: usize, result: Option<Image> },
+    Threshold { target_pc: usize, thresh: u8, result: Option<Image> },
+    Grayscale { target_pc: usize, result: Option<Image> },
+    MorphologyErode { target_pc: usize, kernel: Kernel, result: Option<Image> },
+    MorphologyDilate { target_pc: usize, kernel: Kernel, result: Option<Image> },
     Image { data: Image }
 }
 
