@@ -1,6 +1,8 @@
 extern crate transcode;
 extern crate image;
 
+use transcode::ast::TranscodeAST;
+
 fn from_dynamic_image(orig: image::DynamicImage) -> transcode::Image {
     match orig {
         image::DynamicImage::ImageRgb8(buf) => transcode::Image::Rgb(buf),
@@ -28,18 +30,19 @@ fn main() {
     let gray = transcode::procedures::grayscale(img).unwrap();
     save("./progress/gray.png", &gray);
 
-    let eroded = transcode::procedures::morphology_erode(
-        gray.clone(),
-        transcode::procedures::MorphologyErodeOpts{kernel: transcode::procedures::Kernel::disk(10)}
-    ).unwrap();
+    let eroded = transcode::procedures::morphology_erode(gray.clone(), transcode::Kernel::disk(10)).unwrap();
     save("./progress/eroded.png", &eroded);
 
-    let dilated = transcode::procedures::morphology_dilate(
-        eroded,
-        transcode::procedures::MorphologyDilateOpts{kernel: transcode::procedures::Kernel::disk(10)}
-    ).unwrap();
+    let dilated = transcode::procedures::morphology_dilate(eroded, transcode::Kernel::disk(10)).unwrap();
     save("./progress/dilated.png", &dilated);
 
-    let flattened = transcode::procedures::difference(gray, dilated).unwrap();
+    //let flattened = transcode::procedures::difference(gray, dilated).unwrap();
+    let ast = TranscodeAST::Difference {
+        left: Box::new(TranscodeAST::Image{ data: gray }),
+        right: Box::new(TranscodeAST::Image { data: dilated }),
+        result: None
+    };
+    let flattened = transcode::evaluator::eval_ast(Box::new(ast)).result_image();
+
     save("./progress/flattened.png", &flattened);
 }
